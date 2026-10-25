@@ -14,6 +14,16 @@
 
 ---
 
+## 📚 Documentation & Architecture Guides
+
+| Document | Description |
+|---|---|
+| **[CODEBASE_GUIDE.md](CODEBASE_GUIDE.md)** | **Full In-Depth Explanation** of codebase architecture, modules, classes, and project structure |
+| **[SPECIFICATION.md](SPECIFICATION.md)** | **RFC-002 Specification Sheet** detailing target hardware, latency budgets, and GPIO pinouts |
+| **[.env.example](.env.example)** | **Complete Environment Configuration Template** for cameras, MQTT, and inference engines |
+
+---
+
 ## ⚡ Technical Overview
 
 The **Low-Latency Edge AI Alert System** is engineered to address the critical limitations of cloud-reliant vision pipelines in mission-critical environments: **high network latency, bandwidth consumption, and cloud unreliability**.
