@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # Eclipse Mosquitto MQTT Broker (Sub-50ms Local Alert Bus)
+  mqtt-broker:
+    image: eclipse-mosquitto:2.0
+    container_name: edge-mqtt-broker
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto-data:/mosquitto/data
+      - mosquitto-log:/mosquitto/log
+
+  # Low-Latency Edge AI Alert & Inference Engine
+  edge-detector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: edge-ai-detector
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - MQTT_BROKER_HOST=mqtt-broker
+      - MQTT_BROKER_PORT=1883
+      - CAMERA_SOURCE=synthetic
+      - CONFIDENCE_THRESHOLD=0.70
+      - ALERT_CONFIDENCE_THRESHOLD=0.85
+      - QUANTIZATION_MODE=FP16
+    depends_on:
+      - mqtt-broker
+    volumes:
+      - ./models:/app/models
+
+volumes:
+  mosquitto-data:
+  mosquitto-log:
