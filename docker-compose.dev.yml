@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  mqtt-broker:
+    image: eclipse-mosquitto:2.0
+    container_name: edge-mqtt-broker-dev
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto-dev-data:/mosquitto/data
+      - mosquitto-dev-log:/mosquitto/log
+
+  edge-detector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: edge-ai-detector-dev
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=development
+      - SIMULATION_MODE=true
+      - CAMERA_SOURCE=synthetic
+      - MQTT_BROKER_HOST=mqtt-broker
+      - MQTT_BROKER_PORT=1883
+      - LOG_LEVEL=DEBUG
+    volumes:
+      - ./app:/app/app:ro
+      - ./data:/app/data
+      - ./models:/app/models:ro
+    depends_on:
+      - mqtt-broker
+
+volumes:
+  mosquitto-dev-data:
+  mosquitto-dev-log:

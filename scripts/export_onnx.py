@@ -25,6 +25,9 @@ def export_yolo_to_onnx(
     os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
     logger.info(f"Initiating export for {weights_path} -> {output_path} (Quant: {quantization})")
 
+    if not os.path.exists(weights_path):
+        raise FileNotFoundError(f"Input weights file not found: {weights_path}")
+
     try:
         from ultralytics import YOLO
         model = YOLO(weights_path)
@@ -43,13 +46,14 @@ def export_yolo_to_onnx(
         )
         logger.info(f"Model successfully exported to: {exported_file}")
         return exported_file
-    except ImportError:
-        logger.warning("ultralytics package not installed. Generating dummy ONNX header for simulation.")
-        # Create a stub file to allow deployment pipelines to proceed
-        with open(output_path, "wb") as f:
-            f.write(b"ONNX_EDGE_MOCK_MODEL_FP16_YOLOV8_NANO_OPTIMIZED_V1.0")
-        logger.info(f"Created simulated model artifact at {output_path}")
-        return output_path
+    except ImportError as e:
+        logger.error(
+            "The 'ultralytics' package is required to export YOLO models to ONNX. "
+            "Install it using: pip install ultralytics onnx"
+        )
+        raise RuntimeError(
+            "Cannot export model: 'ultralytics' package is not installed."
+        ) from e
 
 
 if __name__ == "__main__":
