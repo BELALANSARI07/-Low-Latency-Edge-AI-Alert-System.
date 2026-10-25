@@ -39,6 +39,11 @@ venv.bak/
 models/*.onnx
 !models/sample_dummy.txt
 
+# Media & Test Artifacts
+*.jpg
+*.jpeg
+*.png
+
 # Logs & Telemetry
 *.log
 logs/

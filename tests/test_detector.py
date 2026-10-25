@@ -270,14 +270,34 @@ def test_monitored_classes_filter():
 
 
 def test_simulation_mode_flag():
-    """Simulation mode must mark detections explicitly with is_simulated=True."""
-    detector = EdgeDetector(simulation_mode=True)
+    """Simulation mode must mark detections explicitly with is_simulated=True when model is absent."""
+    detector = EdgeDetector(model_path="non_existent_sim_model.onnx", simulation_mode=True)
     frame = np.zeros((640, 640, 3), dtype=np.uint8)
 
     detections, telemetry = detector.detect(frame)
     assert len(detections) >= 1
     assert all(d.is_simulated for d in detections)
     assert telemetry["is_simulated"] is True
+
+
+def test_real_onnx_inference():
+    """If real ONNX model is present on disk, verify real execution without simulation."""
+    import os
+    model_path = "models/yolov8n-fp16.onnx"
+    if not os.path.exists(model_path):
+        pytest.skip("Real ONNX model not present on disk.")
+
+    detector = EdgeDetector(model_path=model_path, simulation_mode=False)
+    assert detector.session is not None
+    assert detector.is_mock is False
+    assert detector.actual_provider == "CPUExecutionProvider"
+
+    # Run inference on frame
+    frame = np.zeros((640, 640, 3), dtype=np.uint8)
+    detections, telemetry = detector.detect(frame)
+    assert isinstance(detections, list)
+    assert telemetry["is_simulated"] is False
+    assert telemetry["inference_ms"] > 0.0
 
 
 def test_production_mode_no_silent_mocking():
