@@ -4,14 +4,14 @@ Continuously generates camera frames, runs inference detection, and broadcasts
 telemetry and hazard alerts to Eclipse Mosquitto broker at topic 'alert/system/01'.
 """
 
-import time
-import json
 import logging
+import time
+
+from app.core.alert_broker import AlertBroker
+from app.core.config import get_settings
 from app.core.detector import EdgeDetector
 from app.core.stream import VideoStreamManager
-from app.core.alert_broker import AlertBroker
 from app.core.telemetry import TelemetryCollector
-from app.core.config import get_settings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s]: %(message)s")
 logger = logging.getLogger("edge_simulator")

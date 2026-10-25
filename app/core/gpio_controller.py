@@ -5,11 +5,11 @@ Implements non-blocking timed pulse reset to prevent hardware relay lockup.
 Supports NVIDIA Jetson Nano (Jetson.GPIO), Raspberry Pi (RPi.GPIO), and Mock simulation.
 """
 
-import time
-import threading
 import logging
-from typing import Optional, Dict, Any
+import threading
+import time
 from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ class GPIOController:
 
         self._state = GPIOState.LOW
         self._lock = threading.Lock()
-        self._pulse_timer: Optional[threading.Timer] = None
+        self._pulse_timer: threading.Timer | None = None
         self._hardware_type = "SIMULATED"
         self._pulse_count = 0
         self._last_trigger_timestamp: float = 0.0
@@ -53,7 +53,7 @@ class GPIOController:
 
         # Attempt Jetson.GPIO
         try:
-            import Jetson.GPIO as GPIO
+            from Jetson import GPIO
             GPIO.setmode(GPIO.BCM)
             GPIO.setup(self.pin, GPIO.OUT, initial=GPIO.LOW)
             self._hardware_type = "Jetson.GPIO"
@@ -65,7 +65,7 @@ class GPIOController:
 
         # Attempt RPi.GPIO
         try:
-            import RPi.GPIO as GPIO
+            from RPi import GPIO
             GPIO.setmode(GPIO.BCM)
             GPIO.setup(self.pin, GPIO.OUT, initial=GPIO.LOW)
             self._hardware_type = "RPi.GPIO"
@@ -145,7 +145,7 @@ class GPIOController:
                 logger.debug(f"GPIO cleanup warning: {e}")
         logger.info(f"GPIO Controller for pin {self.pin} shutdown safely.")
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """Returns the current actuator state and metrics."""
         with self._lock:
             return {

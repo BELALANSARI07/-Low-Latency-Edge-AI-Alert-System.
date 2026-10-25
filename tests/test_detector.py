@@ -1,12 +1,11 @@
 import numpy as np
 import pytest
+
 from app.core.detector import (
     EdgeDetector,
-    Detection,
     PreprocessingMeta,
     letterbox_image,
     restore_box_coordinates,
-    COCO_CLASSES,
 )
 
 

@@ -1,6 +1,6 @@
 import os
 import tempfile
-import pytest
+
 from app.core.storage import AlertDatabase
 
 

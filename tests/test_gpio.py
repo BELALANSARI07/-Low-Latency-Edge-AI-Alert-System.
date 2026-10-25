@@ -1,6 +1,6 @@
 import time
-import pytest
-from app.core.gpio_controller import GPIOController, GPIOState
+
+from app.core.gpio_controller import GPIOController
 
 
 def test_gpio_initial_state_is_low():

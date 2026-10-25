@@ -5,11 +5,12 @@ and pure NumPy vectorized Non-Maximum Suppression (NMS).
 Supports ONNX Runtime with TensorRT, CUDA, and CPU execution providers.
 """
 
-import time
-import os
 import logging
+import os
+import time
 from dataclasses import dataclass
-from typing import List, Dict, Any, Tuple, Optional, Union
+from typing import Any
+
 import numpy as np
 
 try:
@@ -56,7 +57,7 @@ class Detection:
         self,
         label: str,
         confidence: float,
-        box: Tuple[int, int, int, int],  # (x1, y1, x2, y2)
+        box: tuple[int, int, int, int],  # (x1, y1, x2, y2)
         class_id: int,
         region: str = "A-2",
         is_simulated: bool = False
@@ -80,7 +81,7 @@ class Detection:
     def area(self) -> int:
         return self.width * self.height
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "label": self.label,
             "confidence": round(self.confidence, 4),
@@ -99,9 +100,9 @@ class Detection:
 
 def letterbox_image(
     image: np.ndarray,
-    target_size: Tuple[int, int] = (640, 640),
-    fill_color: Tuple[int, int, int] = (114, 114, 114)
-) -> Tuple[np.ndarray, PreprocessingMeta]:
+    target_size: tuple[int, int] = (640, 640),
+    fill_color: tuple[int, int, int] = (114, 114, 114)
+) -> tuple[np.ndarray, PreprocessingMeta]:
     """
     Resizes image using letterbox transformation preserving aspect ratio.
     Pads remaining area with constant fill_color (standard YOLO 114 gray).
@@ -164,9 +165,9 @@ def letterbox_image(
 
 
 def restore_box_coordinates(
-    box: Union[Tuple[float, float, float, float], List[float], np.ndarray],
+    box: tuple[float, float, float, float] | list[float] | np.ndarray,
     meta: PreprocessingMeta
-) -> Tuple[int, int, int, int]:
+) -> tuple[int, int, int, int]:
     """
     Maps bounding box coordinates from letterboxed model space back to original image space.
     Clamps restored coordinates strictly to [0, 0, original_width, original_height].
@@ -213,7 +214,7 @@ class EdgeDetector:
         execution_provider: str = "CPUExecutionProvider",
         simulation_mode: bool = True,
         fail_on_missing_model: bool = False,
-        monitored_classes: Optional[List[str]] = None,
+        monitored_classes: list[str] | None = None,
         max_detections: int = 25,
     ):
         self.model_path = model_path
@@ -227,10 +228,10 @@ class EdgeDetector:
         self.max_detections = max_detections
 
         self.session = None
-        self.input_name: Optional[str] = None
-        self.output_name: Optional[str] = None
-        self.input_shape: Optional[List[Any]] = None
-        self.output_shape: Optional[List[Any]] = None
+        self.input_name: str | None = None
+        self.output_name: str | None = None
+        self.input_shape: list[Any] | None = None
+        self.output_shape: list[Any] | None = None
         self.is_mock: bool = False
         self.actual_provider: str = "None"
 
@@ -308,8 +309,8 @@ class EdgeDetector:
     def preprocess(
         self,
         image: np.ndarray,
-        target_size: Tuple[int, int] = (640, 640)
-    ) -> Tuple[np.ndarray, PreprocessingMeta]:
+        target_size: tuple[int, int] = (640, 640)
+    ) -> tuple[np.ndarray, PreprocessingMeta]:
         """
         Executes full letterboxing, normalization, and tensor formatting.
         Returns:
@@ -341,7 +342,7 @@ class EdgeDetector:
         boxes: np.ndarray,
         scores: np.ndarray,
         iou_threshold: float
-    ) -> List[int]:
+    ) -> list[int]:
         """
         Pure vectorized NumPy Non-Maximum Suppression (NMS).
         Args:
@@ -361,7 +362,7 @@ class EdgeDetector:
         areas = (x2 - x1) * (y2 - y1)
         order = scores.argsort()[::-1]
 
-        keep: List[int] = []
+        keep: list[int] = []
         while order.size > 0:
             i = order[0]
             keep.append(int(i))
@@ -385,12 +386,11 @@ class EdgeDetector:
         self,
         output_tensor: np.ndarray,
         meta: PreprocessingMeta
-    ) -> List[Detection]:
+    ) -> list[Detection]:
         """
         Parses raw YOLOv8 ONNX tensor into filtered, restored Detection objects.
         Handles both [1, 84, 8400] and [1, 8400, 84] output layouts.
         """
-        t0 = time.perf_counter()
         if output_tensor is None or output_tensor.ndim != 3:
             logger.warning(f"Unexpected ONNX output tensor shape: {getattr(output_tensor, 'shape', None)}")
             return []
@@ -445,7 +445,7 @@ class EdgeDetector:
         # Sort indices by confidence descending and cap at max_detections
         keep_indices = keep_indices[:self.max_detections]
 
-        detections: List[Detection] = []
+        detections: list[Detection] = []
         for idx in keep_indices:
             cid = int(class_ids[idx])
             label = COCO_CLASSES[cid] if 0 <= cid < len(COCO_CLASSES) else f"class_{cid}"
@@ -472,7 +472,7 @@ class EdgeDetector:
     def detect(
         self,
         frame: np.ndarray
-    ) -> Tuple[List[Detection], Dict[str, float]]:
+    ) -> tuple[list[Detection], dict[str, float]]:
         """
         Executes end-to-end detection on a single video frame.
         In production with real model: executes full ONNX session & parses tensors.
@@ -488,7 +488,7 @@ class EdgeDetector:
 
         # 2. Model Inference
         t_infer_0 = time.perf_counter()
-        detections: List[Detection] = []
+        detections: list[Detection] = []
         post_ms = 0.0
 
         if self.session is not None and not self.is_mock:

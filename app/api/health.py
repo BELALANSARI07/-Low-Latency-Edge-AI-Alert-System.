@@ -4,8 +4,8 @@ Accurately reflects real edge subsystem states (Camera, ONNX Engine, MQTT, GPIO)
 and enforces standard Kubernetes/Docker readiness probe response codes (200 OK / 503 Service Unavailable).
 """
 
-import time
 from fastapi import APIRouter, Request, Response, status
+
 from app.core.config import get_settings
 
 router = APIRouter(tags=["Health & Diagnostics"])

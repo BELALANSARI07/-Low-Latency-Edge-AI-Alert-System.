@@ -5,7 +5,8 @@ Supports environment separation (development, staging, production) and safe simu
 """
 
 from functools import lru_cache
-from typing import List, Optional, Literal
+from typing import Literal
+
 from pydantic import (
     Field,
     field_validator,
@@ -110,7 +111,7 @@ class Settings(BaseSettings):
         default="1.0.0",
         description="Semantic version string of the neural model."
     )
-    model_sha256: Optional[str] = Field(
+    model_sha256: str | None = Field(
         default=None,
         description="Optional expected SHA-256 checksum for model artifact verification."
     )
@@ -185,11 +186,11 @@ class Settings(BaseSettings):
         le=65535,
         description="MQTT broker network port (1883 for TCP, 8883 for TLS)."
     )
-    mqtt_username: Optional[str] = Field(
+    mqtt_username: str | None = Field(
         default=None,
         description="Optional username for authenticated MQTT broker."
     )
-    mqtt_password: Optional[str] = Field(
+    mqtt_password: str | None = Field(
         default=None,
         description="Optional password for authenticated MQTT broker."
     )
@@ -197,15 +198,15 @@ class Settings(BaseSettings):
         default=False,
         description="Enable TLS encryption for MQTT connection."
     )
-    mqtt_ca_cert: Optional[str] = Field(
+    mqtt_ca_cert: str | None = Field(
         default=None,
         description="File path to CA certificate for TLS verification."
     )
-    mqtt_client_cert: Optional[str] = Field(
+    mqtt_client_cert: str | None = Field(
         default=None,
         description="File path to client certificate for mTLS."
     )
-    mqtt_client_key: Optional[str] = Field(
+    mqtt_client_key: str | None = Field(
         default=None,
         description="File path to client private key for mTLS."
     )
@@ -241,7 +242,7 @@ class Settings(BaseSettings):
         le=65535,
         description="HTTP port for FastAPI."
     )
-    api_key: Optional[str] = Field(
+    api_key: str | None = Field(
         default=None,
         description="Shared secret API key required to invoke protected actuator/management endpoints."
     )
@@ -261,7 +262,7 @@ class Settings(BaseSettings):
     # --------------------------------------------------------------------------
     # 8. Alerting & Monitored Threat Classes
     # --------------------------------------------------------------------------
-    monitored_classes: List[str] = Field(
+    monitored_classes: list[str] = Field(
         default_factory=lambda: ["person", "car", "truck", "motorcycle", "bicycle"],
         description="Subset of COCO classes that can trigger hazard alarms."
     )
@@ -354,7 +355,7 @@ class Settings(BaseSettings):
         return self.simulation_mode
 
     @property
-    def allowed_origins_list(self) -> List[str]:
+    def allowed_origins_list(self) -> list[str]:
         """Parses comma-separated allowed origins into a clean string list."""
         if not self.allowed_origins:
             return ["*"] if not self.is_production else ["http://localhost:3000"]
@@ -371,7 +372,7 @@ class Settings(BaseSettings):
         return self.is_production and not self.simulation_mode and self.fail_on_missing_model
 
 
-@lru_cache()
+@lru_cache
 def get_settings() -> Settings:
     """Return cached application settings singleton."""
     return Settings()

@@ -4,11 +4,13 @@ Supports Physical V4L2/CSI Cameras, RTSP/HTTP Streams, and Deterministic Synthet
 Implements exponential backoff auto-reconnect, thread-safe frame buffers, and MJPEG reticle rendering.
 """
 
-import time
-import threading
 import logging
+import threading
+import time
+from collections.abc import Generator
 from enum import Enum
-from typing import Generator, Optional, Tuple, List, Dict, Any
+from typing import Any
+
 import numpy as np
 
 try:
@@ -55,13 +57,13 @@ class VideoStreamManager:
 
         self.status = StreamStatusEnum.STOPPED
         self.is_running = False
-        self.cap: Optional[Any] = None
-        self.thread: Optional[threading.Thread] = None
+        self.cap: Any | None = None
+        self.thread: threading.Thread | None = None
         self.lock = threading.Lock()
 
         # Frame buffers and detections
-        self.current_frame: Optional[np.ndarray] = None
-        self.latest_detections: List[Detection] = []
+        self.current_frame: np.ndarray | None = None
+        self.latest_detections: list[Detection] = []
 
         # Metrics and counters
         self.frame_count: int = 0
@@ -283,12 +285,12 @@ class VideoStreamManager:
                 return self.current_frame.copy()
             return self._generate_synthetic_frame(0)
 
-    def set_latest_detections(self, detections: List[Detection]):
+    def set_latest_detections(self, detections: list[Detection]):
         """Updates the current active detections for HUD reticle overlay."""
         with self.lock:
             self.latest_detections = list(detections)
 
-    def get_latest_detections(self) -> List[Detection]:
+    def get_latest_detections(self) -> list[Detection]:
         """Returns snapshot of current detections."""
         with self.lock:
             return list(self.latest_detections)
@@ -370,7 +372,7 @@ class VideoStreamManager:
             return True
         return self.status == StreamStatusEnum.RUNNING
 
-    def get_metrics(self) -> Dict[str, Any]:
+    def get_metrics(self) -> dict[str, Any]:
         """Returns runtime telemetry for camera subsystem."""
         with self.lock:
             return {

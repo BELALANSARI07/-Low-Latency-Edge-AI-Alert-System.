@@ -4,9 +4,9 @@ Exports YOLOv8-nano / small models from PyTorch into ONNX FP16 and INT8 formats
 calibrated for NVIDIA Jetson Nano TensorRT / ONNX Runtime EdgeGPU execution.
 """
 
-import os
 import argparse
 import logging
+import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("model_exporter")

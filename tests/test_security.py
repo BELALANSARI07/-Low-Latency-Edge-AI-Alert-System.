@@ -1,8 +1,8 @@
-import os
 import pytest
 from fastapi import HTTPException
-from app.core.config import get_settings
+
 from app.api.dependencies import verify_actuator_api_key
+from app.core.config import get_settings
 
 
 @pytest.fixture(autouse=True)

@@ -4,12 +4,12 @@ Provides lightweight, zero-dependency persistence for edge event logs,
 audit trails, and offline alert buffering with automatic retention management.
 """
 
-import os
-import sqlite3
 import json
 import logging
-from typing import Dict, Any, List, Optional
-from datetime import datetime, timezone, timedelta
+import os
+import sqlite3
+from datetime import datetime, timedelta, timezone
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ class AlertDatabase:
             conn.commit()
         logger.info(f"Initialized SQLite alert database at {self.db_path}.")
 
-    def save_alert(self, payload: Dict[str, Any]) -> bool:
+    def save_alert(self, payload: dict[str, Any]) -> bool:
         """Stores a dispatched alert record."""
         event_id = payload.get("event_id", f"evt_{int(datetime.now(timezone.utc).timestamp() * 1000)}")
         timestamp = payload.get("timestamp", datetime.now(timezone.utc).isoformat())
@@ -76,7 +76,7 @@ class AlertDatabase:
             logger.error(f"Failed to persist alert event {event_id}: {e}")
             return False
 
-    def get_alerts(self, limit: int = 50, offset: int = 0) -> List[Dict[str, Any]]:
+    def get_alerts(self, limit: int = 50, offset: int = 0) -> list[dict[str, Any]]:
         """Retrieves paginated alerts sorted from most recent to oldest."""
         try:
             with self._get_connection() as conn:

@@ -4,13 +4,14 @@ Protects sensitive hardware actuator endpoints with constant-time API key verifi
 """
 
 import secrets
-from typing import Optional
+
 from fastapi import Header, HTTPException, status
+
 from app.core.config import get_settings
 
 
 def verify_actuator_api_key(
-    x_api_key: Optional[str] = Header(None, alias="X-API-Key", description="Secret API key for actuator access")
+    x_api_key: str | None = Header(None, alias="X-API-Key", description="Secret API key for actuator access")
 ) -> str:
     """
     Enforces API key authentication on actuator and privileged routes.

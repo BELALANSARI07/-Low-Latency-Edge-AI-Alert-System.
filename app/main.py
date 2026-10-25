@@ -4,19 +4,20 @@ Orchestrates hardware pipelines: Camera V4L2/CSI -> YOLOv8 Engine -> GPIO/MQTT A
 """
 
 import asyncio
-import os
 import logging
+import os
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.router import api_router
+from app.core.alert_broker import AlertBroker
 from app.core.config import get_settings
 from app.core.detector import EdgeDetector
-from app.core.stream import VideoStreamManager
-from app.core.alert_broker import AlertBroker
-from app.core.telemetry import TelemetryCollector
 from app.core.storage import AlertDatabase
-from app.api.router import api_router
+from app.core.stream import VideoStreamManager
+from app.core.telemetry import TelemetryCollector
 
 logging.basicConfig(
     level=logging.INFO,

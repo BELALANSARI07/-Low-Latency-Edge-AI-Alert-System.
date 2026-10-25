@@ -1,8 +1,9 @@
 import time
+
 import numpy as np
-import pytest
-from app.core.stream import VideoStreamManager, StreamStatusEnum
+
 from app.core.detector import Detection
+from app.core.stream import StreamStatusEnum, VideoStreamManager
 
 
 def test_synthetic_stream_lifecycle():

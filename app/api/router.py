@@ -1,8 +1,9 @@
 from fastapi import APIRouter
-from app.api.health import router as health_router
-from app.api.telemetry import router as telemetry_router
-from app.api.stream import router as stream_router
+
 from app.api.alerts import router as alerts_router
+from app.api.health import router as health_router
+from app.api.stream import router as stream_router
+from app.api.telemetry import router as telemetry_router
 
 api_router = APIRouter()
 

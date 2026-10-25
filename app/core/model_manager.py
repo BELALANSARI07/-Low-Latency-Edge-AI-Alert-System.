@@ -4,12 +4,12 @@ Validates ONNX model binaries, computes SHA-256 integrity checksums,
 inspects input/output tensor shapes, and enforces explicit status tracking.
 """
 
-import os
 import hashlib
 import logging
-from enum import Enum
+import os
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional
+from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -31,17 +31,17 @@ class ModelMetadata:
     model_path: str
     model_name: str
     file_size_bytes: int = 0
-    sha256: Optional[str] = None
-    expected_sha256: Optional[str] = None
-    input_names: List[str] = field(default_factory=list)
-    input_shapes: List[List[Any]] = field(default_factory=list)
-    output_names: List[str] = field(default_factory=list)
-    output_shapes: List[List[Any]] = field(default_factory=list)
-    available_providers: List[str] = field(default_factory=list)
-    active_provider: Optional[str] = None
-    error_message: Optional[str] = None
+    sha256: str | None = None
+    expected_sha256: str | None = None
+    input_names: list[str] = field(default_factory=list)
+    input_shapes: list[list[Any]] = field(default_factory=list)
+    output_names: list[str] = field(default_factory=list)
+    output_shapes: list[list[Any]] = field(default_factory=list)
+    available_providers: list[str] = field(default_factory=list)
+    active_provider: str | None = None
+    error_message: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "status": self.status.value,
             "is_valid": self.is_valid,
@@ -78,7 +78,7 @@ class ModelManager:
     def __init__(
         self,
         model_path: str = "models/yolov8n-fp16.onnx",
-        expected_sha256: Optional[str] = None,
+        expected_sha256: str | None = None,
         simulation_mode: bool = True,
         fail_on_missing_model: bool = False,
     ):
@@ -86,7 +86,7 @@ class ModelManager:
         self.expected_sha256 = expected_sha256.lower() if expected_sha256 else None
         self.simulation_mode = simulation_mode
         self.fail_on_missing_model = fail_on_missing_model
-        self._metadata: Optional[ModelMetadata] = None
+        self._metadata: ModelMetadata | None = None
 
     @property
     def model_name(self) -> str:
@@ -176,12 +176,12 @@ class ModelManager:
             return self._metadata
 
         # Case 5: Inspect ONNX runtime session structure
-        input_names: List[str] = []
-        input_shapes: List[List[Any]] = []
-        output_names: List[str] = []
-        output_shapes: List[List[Any]] = []
-        available_providers: List[str] = []
-        active_provider: Optional[str] = None
+        input_names: list[str] = []
+        input_shapes: list[list[Any]] = []
+        output_names: list[str] = []
+        output_shapes: list[list[Any]] = []
+        available_providers: list[str] = []
+        active_provider: str | None = None
 
         try:
             import onnxruntime as ort

@@ -3,7 +3,8 @@ Pydantic Request and Response Schemas for Edge AI REST API.
 Enforces strict contracts, serialization, and OpenAPI documentation types.
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -12,20 +13,20 @@ class TriggerAlertRequest(BaseModel):
     alert_type: str = Field(default="MANUAL_HAZARD", description="Identifier for the alert event")
     confidence: float = Field(default=0.95, ge=0.0, le=1.0, description="Detection confidence score")
     zone: str = Field(default="A-2", description="Monitoring zone identifier")
-    details: Optional[Dict[str, Any]] = Field(default=None, description="Supplemental detection metadata")
+    details: dict[str, Any] | None = Field(default=None, description="Supplemental detection metadata")
 
 
 class AlertTriggerResponse(BaseModel):
     """Response returned upon triggering an alert."""
     status: str = Field(description="Outcome: 'dispatched' or 'suppressed'")
-    message: Optional[str] = Field(default=None, description="Supplemental explanation if throttled")
-    alert: Optional[Dict[str, Any]] = Field(default=None, description="Dispatched alert event payload")
+    message: str | None = Field(default=None, description="Supplemental explanation if throttled")
+    alert: dict[str, Any] | None = Field(default=None, description="Dispatched alert event payload")
 
 
 class AlertHistoryResponse(BaseModel):
     """List of recent alert events."""
     count: int
-    alerts: List[Dict[str, Any]]
+    alerts: list[dict[str, Any]]
 
 
 class HealthSubsystemOverview(BaseModel):
@@ -76,4 +77,4 @@ class TelemetryStatsResponse(BaseModel):
     platform: str
     camera_id: str
     quantization: str
-    telemetry: Dict[str, Any]
+    telemetry: dict[str, Any]

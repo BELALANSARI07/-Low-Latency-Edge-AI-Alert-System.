@@ -1,13 +1,15 @@
 import os
+
 os.environ["TESTING"] = "true"
 
 import pytest
-from app.main import app
-from app.api.health import health_check, readiness_check
-from app.api.telemetry import get_telemetry_stats
+
 from app.api.alerts import get_alert_history, trigger_manual_alert
+from app.api.health import health_check, readiness_check
 from app.api.schemas import TriggerAlertRequest
+from app.api.telemetry import get_telemetry_stats
 from app.core.stream import StreamStatusEnum
+from app.main import app
 
 
 class MockResponse:
@@ -93,3 +95,16 @@ def test_alert_history_and_manual_trigger(mock_req):
     assert "alerts" in history
     assert "count" in history
     assert history["count"] >= 1
+
+
+def test_stream_mjpeg_endpoint(mock_req):
+    from app.api.stream import stream_mjpeg
+    resp = stream_mjpeg(mock_req)
+    assert resp.media_type == "multipart/x-mixed-replace; boundary=frame"
+
+
+def test_create_application():
+    from app.main import create_application
+    app_instance = create_application()
+    assert app_instance is not None
+    assert app_instance.title == "PROJECT: 02 // LOW-LATENCY EDGE AI ALERT SYSTEM"

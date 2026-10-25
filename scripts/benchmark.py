@@ -6,18 +6,18 @@ Measures real preprocessing, model inference, postprocessing latencies, and thro
 Generates structured JSON/CSV telemetry reports.
 """
 
-import sys
-import os
-import time
-import json
 import argparse
+import json
+import os
+import sys
+import time
+
 import numpy as np
 
 # Ensure root directory is on Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app.core.detector import EdgeDetector
-
 
 # Documented reference benchmarks from published NVIDIA Jetson & Raspberry Pi testing
 PUBLISHED_REFERENCE_BENCHMARKS = [

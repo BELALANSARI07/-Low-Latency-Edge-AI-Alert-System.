@@ -4,13 +4,14 @@ Publishes structured JSON alerts over secure MQTT with TLS/authentication suppor
 Actuates fail-safe edge GPIO relays and tracks local alert history with cooldown throttling.
 """
 
-import time
 import json
 import logging
+import time
+from collections import deque
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Dict, Any, List, Optional
-from collections import deque
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 try:
@@ -46,9 +47,9 @@ class AlertPayload(BaseModel):
     alert_type: str
     confidence: float = Field(..., ge=0.0, le=1.0)
     zone: str
-    detection: Dict[str, Any] = Field(default_factory=dict)
+    detection: dict[str, Any] = Field(default_factory=dict)
     telemetry: AlertTelemetry
-    gpio: Dict[str, Any] = Field(default_factory=dict)
+    gpio: dict[str, Any] = Field(default_factory=dict)
 
 
 class AlertBroker:
@@ -61,12 +62,12 @@ class AlertBroker:
         self,
         host: str = "localhost",
         port: int = 1883,
-        username: Optional[str] = None,
-        password: Optional[str] = None,
+        username: str | None = None,
+        password: str | None = None,
         use_tls: bool = False,
-        ca_cert: Optional[str] = None,
-        client_cert: Optional[str] = None,
-        client_key: Optional[str] = None,
+        ca_cert: str | None = None,
+        client_cert: str | None = None,
+        client_key: str | None = None,
         alert_topic: str = "alert/system/01",
         telemetry_topic: str = "telemetry/edge/01",
         client_id: str = "edge-detector-broker",
@@ -103,7 +104,7 @@ class AlertBroker:
         self.mqtt_status = MQTTStatusEnum.DISCONNECTED
         self.last_alert_time: float = 0.0
         self.alert_history: deque = deque(maxlen=100)
-        self.client: Optional[Any] = None
+        self.client: Any | None = None
 
         self._init_mqtt()
 
@@ -164,9 +165,9 @@ class AlertBroker:
         alert_type: str,
         confidence: float,
         zone: str = "A-2",
-        detection_details: Optional[Dict[str, Any]] = None,
+        detection_details: dict[str, Any] | None = None,
         latency_ms: float = 14.2,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Publishes a validated alert event with real measured latencies.
         Triggers GPIO pulse and enforces cooldown period.
@@ -231,7 +232,7 @@ class AlertBroker:
         )
         return payload_dict
 
-    def get_recent_alerts(self, limit: int = 20) -> List[Dict[str, Any]]:
+    def get_recent_alerts(self, limit: int = 20) -> list[dict[str, Any]]:
         """Returns recent alert history."""
         return list(self.alert_history)[-limit:]
 

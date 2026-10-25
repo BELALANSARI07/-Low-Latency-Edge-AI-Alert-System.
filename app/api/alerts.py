@@ -3,14 +3,14 @@ Alerts & Hardware Actuator API Endpoints.
 Allows querying recent event logs and manually actuating alert relays with API key authorization.
 """
 
-from typing import Optional, Dict, Any
-from fastapi import APIRouter, Request, Depends, HTTPException, status
-from app.api.schemas import (
-    TriggerAlertRequest,
-    AlertTriggerResponse,
-    AlertHistoryResponse,
-)
+from fastapi import APIRouter, Depends, Request
+
 from app.api.dependencies import verify_actuator_api_key
+from app.api.schemas import (
+    AlertHistoryResponse,
+    AlertTriggerResponse,
+    TriggerAlertRequest,
+)
 
 router = APIRouter(prefix="/alerts", tags=["Alerts & Actuation"])
 

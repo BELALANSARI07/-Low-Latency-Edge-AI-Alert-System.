@@ -4,10 +4,11 @@ Measures real frame-to-frame intervals, multi-stage inference latencies (P50, P9
 and host hardware utilization without fabricated benchmarks.
 """
 
-import time
 import os
+import time
 from collections import deque
-from typing import Dict, Any, List, Optional
+from typing import Any
+
 import numpy as np
 
 try:
@@ -37,9 +38,9 @@ class TelemetryCollector:
     def record_frame(
         self,
         total_latency_ms: float,
-        preprocess_ms: Optional[float] = None,
-        inference_ms: Optional[float] = None,
-        postprocess_ms: Optional[float] = None,
+        preprocess_ms: float | None = None,
+        inference_ms: float | None = None,
+        postprocess_ms: float | None = None,
     ):
         """Records a processed frame timestamp and multi-stage execution latencies."""
         now = time.perf_counter()
@@ -71,7 +72,7 @@ class TelemetryCollector:
             return 0.0
         return round((len(self.frame_times) - 1) / delta, 1)
 
-    def _compute_percentiles(self, d: deque) -> Dict[str, Optional[float]]:
+    def _compute_percentiles(self, d: deque) -> dict[str, float | None]:
         """Computes mean, P50, P95, and P99 percentiles for a metric deque."""
         if not d:
             return {
@@ -92,7 +93,7 @@ class TelemetryCollector:
             "max_ms": round(float(np.max(arr)), 2),
         }
 
-    def _get_gpu_telemetry(self) -> Dict[str, Any]:
+    def _get_gpu_telemetry(self) -> dict[str, Any]:
         """
         Queries actual GPU/VRAM telemetry if hardware sensors exist,
         otherwise reports null without inventing mock values.
@@ -119,7 +120,7 @@ class TelemetryCollector:
             "power_draw_w": None
         }
 
-    def get_hardware_telemetry(self) -> Dict[str, Any]:
+    def get_hardware_telemetry(self) -> dict[str, Any]:
         """Queries CPU, memory, and measured latency statistics."""
         if psutil is not None:
             cpu_pct = round(psutil.cpu_percent(interval=None), 1)
