@@ -1,5 +1,9 @@
 # NVIDIA Jetson Nano & Orin Deployment Guide
 
+> [!NOTE]
+> **Target Hardware Guide**: The instructions below document the deployment procedure for NVIDIA Jetson embedded hardware.
+> Hardware acceleration via TensorRT and physical CSI camera ingestion are **target architectural capabilities** that have not yet been evaluated on physical Jetson hardware in this repository. Verified execution in this repo currently targets x86_64 CPU and simulation mode.
+
 This guide details physical deployment, TensorRT acceleration, CSI camera interfacing, and GPIO relay actuation on **NVIDIA Jetson Nano (4GB)** and **Jetson Orin Nano**.
 
 ---

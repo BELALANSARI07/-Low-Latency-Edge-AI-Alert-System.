@@ -60,20 +60,24 @@ The system is designed for autonomous, cloud-independent edge execution on embed
 
 ---
 
-## 2. End-to-End Latency Budget
+## 2. End-to-End Latency Budget (Design Targets vs Measured Reality)
 
-To maintain reliable hazard signaling, the total latency budget from light hitting the camera sensor to the physical relay firing is bounded at **50 ms**:
+To maintain reliable hazard signaling, the system architecture establishes a **target latency budget of < 50 ms** from frame capture to alert dispatch on edge GPU devices:
 
-| Stage | Operation | Jetson Nano (FP16) | Raspberry Pi 4 (FP32) |
-|---|---|---|---|
-| **$T_1$** | Sensor Exposure & Frame Transfer | 8.0 ms | 12.0 ms |
-| **$T_2$** | Letterbox Preprocessing & Normalization | 3.5 ms | 5.2 ms |
-| **$T_3$** | YOLOv8 ONNX Tensor Inference | 14.5 ms | 58.2 ms |
-| **$T_4$** | Tensor Parsing & Vectorized NMS | 1.2 ms | 2.1 ms |
-| **$T_5$** | Inverse Coordinate Restoration & Clamping | 0.2 ms | 0.4 ms |
-| **$T_6$** | Local GPIO Actuation Trigger | 0.3 ms | 0.3 ms |
-| **$T_7$** | MQTT Event Dispatch & Transmission | 1.8 ms | 2.5 ms |
-| **Total** | **Frame Capture to Alert Trigger** | **~29.5 ms (< 50ms)** | **~80.7 ms** |
+| Stage | Operation | Jetson Nano FP16 (*Target Budget*) | Raspberry Pi 4 FP32 (*Target Budget*) | x86 CPU FP32 (*Empirically Measured*) |
+|---|---|---|---|---|
+| **$T_1$** | Sensor Exposure & Frame Transfer | 8.0 ms | 12.0 ms | Varies (Simulated / Webcam) |
+| **$T_2$** | Letterbox Preprocessing & Normalization | 3.5 ms | 5.2 ms | 8.8 ms |
+| **$T_3$** | YOLOv8 ONNX Tensor Inference | 14.5 ms | 58.2 ms | 63.2 ms |
+| **$T_4$** | Tensor Parsing & Vectorized NMS | 1.2 ms | 2.1 ms | 2.1 ms |
+| **$T_5$** | Inverse Coordinate Restoration & Clamping | 0.2 ms | 0.4 ms | < 0.2 ms |
+| **$T_6$** | Local GPIO Actuation Trigger | 0.3 ms | 0.3 ms | < 0.5 ms (Simulated) |
+| **$T_7$** | MQTT Event Dispatch & Transmission | 1.8 ms | 2.5 ms | < 1.0 ms (In-Memory / Queue) |
+| **Total** | **Frame Capture to Alert Trigger** | **~29.5 ms (< 50ms Target)** | **~80.7 ms** | **~74.7 ms (Inference loop)** |
+
+> [!NOTE]
+> Jetson Nano and Raspberry Pi values reflect theoretical engineering budgets and published reference benchmarks. They have **not been tested or verified on physical edge devices** in this repository.
+> The x86 CPU column reflects actual timing measurements obtained with `scripts/benchmark.py`.
 
 ---
 

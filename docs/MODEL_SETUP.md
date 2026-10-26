@@ -49,11 +49,15 @@ yolo export model=models/yolov8n.pt format=onnx imgsz=640 half=False opset=17 si
 
 ## 3. Quantization Modes & Hardware Targets
 
-| Quantization | Target Hardware | Execution Provider | Latency Target | Accuracy (mAP@0.5) |
-|---|---|---|---|---|
-| **FP16** | NVIDIA Jetson Nano | `CUDAExecutionProvider` / `TensorrtExecutionProvider` | **12ms - 18ms** | 84.4% |
-| **FP32** | Raspberry Pi 4 / CPU | `CPUExecutionProvider` | **45ms - 70ms** | 84.6% |
-| **INT8** | Jetson Orin / Coral EdgeTPU | `TensorrtExecutionProvider` | **6ms - 10ms** | 83.8% |
+> [!NOTE]
+> Latency targets and accuracy numbers are **published reference benchmarks** from Ultralytics and hardware vendors (COCO val2017 mAP@0.5). Accuracy has not been independently evaluated inside this repository.
+> Currently, the repository includes an FP32 ONNX model (`yolov8n.onnx`) running on `CPUExecutionProvider`.
+
+| Quantization | Status in Repo | Target Hardware | Execution Provider | Latency Target | Published mAP@0.5 |
+|---|---|---|---|---|---|
+| **FP32** | **Implemented & Tested** | x86 CPU / Raspberry Pi | `CPUExecutionProvider` | ~60ms - 75ms | 84.6% (published) |
+| **FP16** | **Target Optimization** | NVIDIA Jetson Nano | `TensorrtExecutionProvider` | **12ms - 18ms** | 84.4% (published) |
+| **INT8** | **Target Optimization** | Jetson Orin / EdgeTPU | `TensorrtExecutionProvider` | **6ms - 10ms** | 83.8% (published) |
 
 ---
 

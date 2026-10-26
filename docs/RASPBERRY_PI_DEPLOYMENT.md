@@ -1,5 +1,9 @@
 # Raspberry Pi 4 & 5 Edge Deployment Guide
 
+> [!NOTE]
+> **Target Hardware Guide**: The instructions below document the deployment procedure for Raspberry Pi single-board computers.
+> Physical execution on ARM64 Raspberry Pi hardware and physical GPIO pin actuation have **not yet been verified on physical hardware** in this repository. Software shims and simulated execution have been tested.
+
 This guide details configuring and optimizing the **Low-Latency Edge AI Alert System** on **Raspberry Pi 4 (8GB)** and **Raspberry Pi 5** using CPU-optimized ONNX Runtime inference.
 
 ---
@@ -65,11 +69,13 @@ CONFIDENCE_THRESHOLD=0.65
 ALERT_CONFIDENCE_THRESHOLD=0.80
 ```
 
-| Resolution | RPi 4 Latency | RPi 5 Latency | Accuracy (mAP@0.5) |
+| Resolution | RPi 4 Target Latency | RPi 5 Target Latency | Published mAP@0.5 |
 |---|---|---|---|
-| **640x640** | 58.2 ms | 31.4 ms | 84.6% |
-| **480x480** | 36.5 ms | 19.8 ms | 83.2% |
-| **320x320** | 18.2 ms | 9.7 ms | 79.5% |
+| **640x640** | 58.2 ms | 31.4 ms | 84.6% (published) |
+| **480x480** | 36.5 ms | 19.8 ms | 83.2% (published) |
+| **320x320** | 18.2 ms | 9.7 ms | 79.5% (published) |
+
+*(Note: Target latencies and accuracy figures represent published Ultralytics reference numbers on ARM64; not evaluated locally on physical Raspberry Pi boards in this repository).*
 
 ---
 

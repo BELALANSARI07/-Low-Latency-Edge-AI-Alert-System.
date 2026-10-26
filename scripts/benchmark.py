@@ -19,10 +19,12 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from app.core.detector import EdgeDetector
 
-# Documented reference benchmarks from published NVIDIA Jetson & Raspberry Pi testing
+# Documented reference benchmarks from published NVIDIA Jetson & Raspberry Pi testing.
+# NOTE: These figures are external published references / target design goals,
+# NOT benchmarked or verified on physical edge hardware in this repository.
 PUBLISHED_REFERENCE_BENCHMARKS = [
     {
-        "device": "NVIDIA Jetson Nano (4GB)",
+        "device": "NVIDIA Jetson Nano (4GB) [Target Reference]",
         "model": "YOLOv8-Nano",
         "precision": "FP16 (TensorRT)",
         "input_resolution": "640x640",
@@ -30,10 +32,10 @@ PUBLISHED_REFERENCE_BENCHMARKS = [
         "fps": 68.9,
         "map50": 84.6,
         "power_draw_w": 7.5,
-        "classification": "Optimal Sub-15ms Sweetspot"
+        "classification": "Target Performance Goal (Unverified on physical device)"
     },
     {
-        "device": "Raspberry Pi 4 (8GB)",
+        "device": "Raspberry Pi 4 (8GB) [Target Reference]",
         "model": "YOLOv8-Nano",
         "precision": "FP32 (ONNX CPU)",
         "input_resolution": "640x640",
@@ -41,10 +43,10 @@ PUBLISHED_REFERENCE_BENCHMARKS = [
         "fps": 17.1,
         "map50": 84.6,
         "power_draw_w": 5.8,
-        "classification": "CPU-Bound Edge"
+        "classification": "Target Performance Goal (Unverified on physical device)"
     },
     {
-        "device": "NVIDIA Jetson Orin Nano (8GB)",
+        "device": "NVIDIA Jetson Orin Nano (8GB) [Target Reference]",
         "model": "YOLOv8-Nano",
         "precision": "INT8 (TensorRT)",
         "input_resolution": "640x640",
@@ -52,7 +54,7 @@ PUBLISHED_REFERENCE_BENCHMARKS = [
         "fps": 147.0,
         "map50": 83.8,
         "power_draw_w": 9.2,
-        "classification": "Ultra High-Speed Edge"
+        "classification": "Target Performance Goal (Unverified on physical device)"
     }
 ]
 
@@ -154,11 +156,11 @@ def benchmark_engine(
     print(f"Postprocessing (Mean):  {results['postprocess_latency']['mean_ms']} ms")
     print("=" * 80)
 
-    print("\nREFERENCE PUBLISHED HARDWARE BENCHMARKS (For Target Comparisons):")
-    print(f"{'DEVICE':<25} | {'PRECISION':<18} | {'LATENCY':<10} | {'FPS':<8} | {'mAP@0.5'}")
-    print("-" * 75)
+    print("\nEXTERNAL REFERENCE HARDWARE TARGETS (Unverified in this repo):")
+    print(f"{'DEVICE':<35} | {'PRECISION':<18} | {'LATENCY':<10} | {'FPS':<8} | {'mAP@0.5'}")
+    print("-" * 85)
     for ref in PUBLISHED_REFERENCE_BENCHMARKS:
-        print(f"{ref['device']:<25} | {ref['precision']:<18} | {ref['latency_ms']:>6.1f}ms   | {ref['fps']:>5.1f}   | {ref['map50']:>5.1f}%")
+        print(f"{ref['device']:<35} | {ref['precision']:<18} | {ref['latency_ms']:>6.1f}ms   | {ref['fps']:>5.1f}   | {ref['map50']:>5.1f}%")
 
     if output_json:
         with open(output_json, "w") as f:
@@ -170,13 +172,15 @@ def benchmark_engine(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Empirical Edge AI Latency & Throughput Benchmark")
-    parser.add_argument("--model-path", type=str, default="models/yolov8n-fp16.onnx", help="Path to ONNX weights")
-    parser.add_argument("--quant", type=str, default="FP16", choices=["FP32", "FP16", "INT8"])
+    parser.add_argument("--model-path", type=str, default="models/yolov8n.onnx", help="Path to ONNX weights")
+    parser.add_argument("--quant", type=str, default="FP32", choices=["FP32", "FP16", "INT8"])
     parser.add_argument("--provider", type=str, default="CPUExecutionProvider", help="ONNX Execution Provider")
     parser.add_argument("--iterations", type=int, default=50, help="Number of profiling cycles")
     parser.add_argument("--warmup", type=int, default=10, help="Number of warmup cycles")
     parser.add_argument("--imgsz", type=int, default=640, help="Input resolution")
-    parser.add_argument("--simulation-mode", action="store_true", default=True)
+    parser.add_argument("--simulation-mode", dest="simulation_mode", action="store_true", help="Force synthetic simulation mode")
+    parser.add_argument("--real", dest="simulation_mode", action="store_false", help="Run real ONNX inference")
+    parser.set_defaults(simulation_mode=False)
     parser.add_argument("--output-json", type=str, default=None, help="Save report to JSON file")
 
     args = parser.parse_args()
